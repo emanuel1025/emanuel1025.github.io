@@ -10,7 +10,7 @@ var savThrowsDict = {
 
 $(document).ready(function () {
 	$.ajax({
-        url: "https://www.dnd5eapi.co/api/classes/",
+        url: "http://www.dnd5eapi.co/api/classes/",
         crossDomain: true,
         data: {},
         success: function (response) {
