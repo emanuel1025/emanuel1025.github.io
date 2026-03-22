@@ -313,65 +313,118 @@
             hero.appendChild(foxWrapper);
         }
 
-        // --- Walking fox: SVG fox on all fours that runs across the screen ---
-        var foxSize = mobile ? 80 : 120;
+        // --- Walking fox: polished SVG fox on all fours ---
+        var foxW = mobile ? 100 : 160;
+        var foxH = mobile ? 70 : 112;
         var walkStyle = document.createElement('style');
-        walkStyle.textContent = '@keyframes trot-front{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}' +
-            '@keyframes trot-back{0%,100%{transform:rotate(15deg)}50%{transform:rotate(-15deg)}}' +
-            '@keyframes tail-wag{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(10deg)}}';
+        walkStyle.textContent =
+            '@keyframes leg-fl{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(25deg)}}' +
+            '@keyframes leg-fr{0%,100%{transform:rotate(25deg)}50%{transform:rotate(-20deg)}}' +
+            '@keyframes leg-bl{0%,100%{transform:rotate(20deg)}50%{transform:rotate(-25deg)}}' +
+            '@keyframes leg-br{0%,100%{transform:rotate(-25deg)}50%{transform:rotate(20deg)}}' +
+            '@keyframes tail-s{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(15deg)}}' +
+            '@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}';
         document.head.appendChild(walkStyle);
 
         var walkFox = document.createElement('div');
-        walkFox.innerHTML = '<svg viewBox="0 0 200 130" width="' + foxSize + '" height="' + (foxSize * 0.65) + '" style="overflow:visible">' +
-            '<g>' +
-            // Tail
-            '<g transform="translate(18,45)" style="transform-origin:18px 45px;animation:tail-wag 0.4s ease-in-out infinite">' +
-            '<path d="M18,45 Q-5,20 5,10 Q12,5 18,15" fill="#E4761B" stroke="#C66A15" stroke-width="1"/></g>' +
+        walkFox.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 160" width="' + foxW + '" height="' + foxH + '" style="overflow:visible">' +
+            '<defs>' +
+            '<linearGradient id="fur1" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="#F6851B"/>' +
+            '<stop offset="100%" stop-color="#E4761B"/>' +
+            '</linearGradient>' +
+            '<linearGradient id="fur2" x1="0" y1="0" x2="1" y2="1">' +
+            '<stop offset="0%" stop-color="#F6851B"/>' +
+            '<stop offset="100%" stop-color="#D4621B"/>' +
+            '</linearGradient>' +
+            '<linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="#FBD8A8"/>' +
+            '<stop offset="100%" stop-color="#F5C88A"/>' +
+            '</linearGradient>' +
+            '</defs>' +
+            '<g style="animation:bob 0.35s ease-in-out infinite">' +
+
+            // Shadow
+            '<ellipse cx="130" cy="148" rx="70" ry="6" fill="rgba(0,0,0,0.15)"/>' +
+
+            // Tail - bushy with white tip
+            '<g style="transform-origin:55px 65px;animation:tail-s 0.5s ease-in-out infinite">' +
+            '<path d="M55,65 Q20,30 10,20 Q5,15 12,18 Q25,22 15,12 Q10,8 18,14 Q30,25 50,55" fill="url(#fur2)"/>' +
+            '<path d="M15,12 Q10,8 18,14 Q13,10 10,15 Q8,10 15,12" fill="#FEFEFE"/>' +
+            '</g>' +
+
+            // Back legs (behind body)
+            '<g transform="translate(80,95)" style="transform-origin:0 0;animation:leg-bl 0.35s ease-in-out infinite">' +
+            '<path d="M-3,0 L-5,35 Q-5,42 0,42 Q8,42 6,35 L3,0" fill="#C66A15"/>' +
+            '<ellipse cx="1" cy="42" rx="7" ry="4" fill="#333"/></g>' +
+            '<g transform="translate(155,92)" style="transform-origin:0 0;animation:leg-br 0.35s ease-in-out infinite">' +
+            '<path d="M-3,0 L-5,38 Q-5,45 0,45 Q8,45 6,38 L3,0" fill="#C66A15"/>' +
+            '<ellipse cx="1" cy="45" rx="7" ry="4" fill="#333"/></g>' +
+
             // Body
-            '<ellipse cx="100" cy="55" rx="55" ry="25" fill="#E4761B"/>' +
-            '<ellipse cx="100" cy="55" rx="55" ry="25" fill="#F6851B" opacity="0.5"/>' +
-            // Belly
-            '<ellipse cx="105" cy="62" rx="40" ry="14" fill="#F5A623" opacity="0.6"/>' +
+            '<path d="M60,60 Q60,40 100,38 L170,35 Q195,35 195,58 Q195,90 160,95 Q120,100 80,98 Q60,95 60,75Z" fill="url(#fur1)"/>' +
+
+            // Belly/chest
+            '<path d="M75,80 Q90,100 140,98 Q165,96 175,85 Q165,95 130,95 Q95,95 80,85Z" fill="url(#belly)" opacity="0.7"/>' +
+            '<path d="M175,50 Q185,55 185,70 Q182,80 175,85 Q180,70 178,55Z" fill="url(#belly)" opacity="0.6"/>' +
+
+            // Front legs (in front of body)
+            '<g transform="translate(100,95)" style="transform-origin:0 0;animation:leg-fl 0.35s ease-in-out infinite">' +
+            '<path d="M-3,0 L-4,32 Q-4,40 1,40 Q8,40 7,32 L4,0" fill="#D4701B"/>' +
+            '<ellipse cx="2" cy="40" rx="7" ry="4" fill="#333"/></g>' +
+            '<g transform="translate(165,90)" style="transform-origin:0 0;animation:leg-fr 0.35s ease-in-out infinite">' +
+            '<path d="M-3,0 L-4,38 Q-4,46 1,46 Q9,46 7,38 L4,0" fill="#D4701B"/>' +
+            '<ellipse cx="2" cy="46" rx="7" ry="4" fill="#333"/></g>' +
+
             // Neck
-            '<ellipse cx="148" cy="45" rx="18" ry="20" fill="#E4761B"/>' +
+            '<path d="M175,35 Q185,25 195,28 Q205,30 200,50 Q195,60 185,58 Q175,55 175,45Z" fill="url(#fur1)"/>' +
+
             // Head
-            '<ellipse cx="168" cy="30" rx="22" ry="18" fill="#F6851B"/>' +
+            '<path d="M190,18 Q195,10 210,10 Q230,12 235,25 Q237,35 230,42 Q220,48 205,45 Q192,42 190,30Z" fill="url(#fur2)"/>' +
+
+            // Cheek/jaw
+            '<path d="M205,38 Q215,42 225,38 Q230,42 222,45 Q210,48 205,42Z" fill="#F5C88A"/>' +
+
             // Snout
-            '<ellipse cx="185" cy="35" rx="10" ry="7" fill="#D4A574"/>' +
+            '<path d="M228,28 Q238,28 242,32 Q240,37 232,38 Q226,36 228,30Z" fill="#FBD8A8"/>' +
+
             // Nose
-            '<circle cx="192" cy="33" r="3" fill="#222"/>' +
+            '<ellipse cx="241" cy="31" rx="4" ry="3" fill="#1A1A1A"/>' +
+            '<ellipse cx="240.5" cy="30" rx="1.5" ry="1" fill="#444" opacity="0.5"/>' +
+
+            // Mouth
+            '<path d="M238,34 Q240,37 242,34" fill="none" stroke="#8B4513" stroke-width="0.8"/>' +
+
             // Eye
-            '<circle cx="175" cy="26" r="3" fill="#222"/>' +
-            '<circle cx="176" cy="25" r="1" fill="#fff"/>' +
+            '<ellipse cx="218" cy="24" rx="5" ry="5.5" fill="#fff"/>' +
+            '<ellipse cx="219" cy="24.5" rx="3.5" ry="4" fill="#2D1B00"/>' +
+            '<circle cx="220" cy="23" r="1.5" fill="#fff"/>' +
+            '<circle cx="217.5" cy="25.5" r="0.8" fill="#fff" opacity="0.5"/>' +
+
+            // Brow
+            '<path d="M213,19 Q218,17 223,19" fill="none" stroke="#B5500F" stroke-width="1.2"/>' +
+
             // Ears
-            '<polygon points="155,18 160,2 168,16" fill="#E4761B" stroke="#C66A15" stroke-width="1"/>' +
-            '<polygon points="158,17 161,6 165,16" fill="#D4A574"/>' +
-            '<polygon points="170,15 178,0 182,14" fill="#E4761B" stroke="#C66A15" stroke-width="1"/>' +
-            '<polygon points="173,14 178,4 180,14" fill="#D4A574"/>' +
-            // Front legs
-            '<g transform="translate(135,75)" style="transform-origin:0px 0px;animation:trot-front 0.3s ease-in-out infinite">' +
-            '<rect x="-4" y="0" width="8" height="30" rx="4" fill="#C66A15"/>' +
-            '<ellipse cx="0" cy="30" rx="6" ry="4" fill="#222"/></g>' +
-            '<g transform="translate(125,75)" style="transform-origin:0px 0px;animation:trot-back 0.3s ease-in-out infinite">' +
-            '<rect x="-4" y="0" width="8" height="28" rx="4" fill="#E4761B"/>' +
-            '<ellipse cx="0" cy="28" rx="6" ry="4" fill="#222"/></g>' +
-            // Back legs
-            '<g transform="translate(65,73)" style="transform-origin:0px 0px;animation:trot-back 0.3s ease-in-out infinite">' +
-            '<rect x="-4" y="0" width="9" height="32" rx="4" fill="#C66A15"/>' +
-            '<ellipse cx="1" cy="32" rx="6" ry="4" fill="#222"/></g>' +
-            '<g transform="translate(55,73)" style="transform-origin:0px 0px;animation:trot-front 0.3s ease-in-out infinite">' +
-            '<rect x="-4" y="0" width="9" height="30" rx="4" fill="#E4761B"/>' +
-            '<ellipse cx="1" cy="30" rx="6" ry="4" fill="#222"/></g>' +
+            '<path d="M198,15 Q195,0 202,2 Q207,4 205,15" fill="#E4761B"/>' +
+            '<path d="M199.5,13 Q198,4 202,5 Q205,6 204,13" fill="#EDAB76"/>' +
+            '<path d="M210,12 Q212,-2 218,0 Q222,3 217,14" fill="#E4761B"/>' +
+            '<path d="M211.5,10 Q213,1 217,2 Q220,4 216,12" fill="#EDAB76"/>' +
+
+            // Whiskers
+            '<line x1="240" y1="32" x2="255" y2="29" stroke="#D4A574" stroke-width="0.5" opacity="0.6"/>' +
+            '<line x1="240" y1="34" x2="254" y2="34" stroke="#D4A574" stroke-width="0.5" opacity="0.6"/>' +
+            '<line x1="240" y1="36" x2="253" y2="38" stroke="#D4A574" stroke-width="0.5" opacity="0.6"/>' +
+
             '</g></svg>';
 
         var walkContainer = document.createElement('div');
-        walkContainer.style.cssText = 'position:fixed;bottom:' + (mobile ? '10%' : '15%') + ';left:0;z-index:15;pointer-events:none;';
+        walkContainer.style.cssText = 'position:fixed;bottom:' + (mobile ? '8%' : '12%') + ';left:0;z-index:15;pointer-events:none;';
         walkContainer.appendChild(walkFox);
         document.body.appendChild(walkContainer);
 
         // Animate walking across screen
-        var wx = -foxSize;
-        var walkSpeed = mobile ? 1.5 : 2;
+        var wx = -foxW;
+        var walkSpeed = mobile ? 1.2 : 1.8;
         var goingRight = true;
 
         function animateWalk() {
@@ -383,7 +436,7 @@
                 }
             } else {
                 wx -= walkSpeed;
-                if (wx < -foxSize - 20) {
+                if (wx < -foxW - 20) {
                     goingRight = true;
                     walkFox.style.transform = 'scaleX(1)';
                 }
