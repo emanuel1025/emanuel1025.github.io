@@ -292,32 +292,75 @@
             return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
                 (navigator.maxTouchPoints > 0 && window.innerWidth < 1024);
         }
-        var sizeRatio = isMobile() ? 0.75 : 0.4;
+
+        // --- Main fox: small, top center, follows cursor/tilt ---
         var viewer = createViewer({
-            width: sizeRatio,
-            height: sizeRatio,
+            width: .15,
+            height: .15,
             followMouse: true
         });
         document.getElementById('wolfCola').appendChild(viewer.container);
 
-        // Move fox into the hero section so it's visible on mobile
-        // (position:fixed breaks with scroll-snap on iOS Safari)
         var hero = document.getElementById('home_hero');
         var foxWrapper = document.getElementById('foxWrapper');
         if (hero && foxWrapper) {
             hero.style.position = 'relative';
             hero.style.overflow = 'visible';
             hero.style.minHeight = '100vh';
-            foxWrapper.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;';
+            foxWrapper.style.cssText = 'position:absolute;top:8%;left:50%;transform:translate(-50%,0);z-index:10;';
             hero.appendChild(foxWrapper);
         }
 
+        // --- Runner fox: bounces around the screen ---
+        var runner = createViewer({
+            width: .12,
+            height: .12,
+            slowDrift: true
+        });
+        var runnerEl = document.createElement('div');
+        runnerEl.id = 'runnerFox';
+        runnerEl.style.cssText = 'position:fixed;z-index:15;pointer-events:none;';
+        runnerEl.appendChild(runner.container);
+        document.body.appendChild(runnerEl);
+
+        // Bounce animation
+        var rx = Math.random() * (window.innerWidth - 200) + 50;
+        var ry = Math.random() * (window.innerHeight - 200) + 50;
+        var vx = (Math.random() > 0.5 ? 1 : -1) * (1.5 + Math.random());
+        var vy = (Math.random() > 0.5 ? 1 : -1) * (1.5 + Math.random());
+        var runnerW = window.innerWidth * 0.12;
+        var runnerH = window.innerHeight * 0.12;
+
+        function bounceRunner() {
+            rx += vx;
+            ry += vy;
+            var maxX = window.innerWidth - runnerW;
+            var maxY = window.innerHeight - runnerH;
+            if (rx <= 0 || rx >= maxX) { vx = -vx; rx = Math.max(0, Math.min(rx, maxX)); }
+            if (ry <= 0 || ry >= maxY) { vy = -vy; ry = Math.max(0, Math.min(ry, maxY)); }
+            runnerEl.style.left = rx + 'px';
+            runnerEl.style.top = ry + 'px';
+            requestAnimationFrame(bounceRunner);
+        }
+        bounceRunner();
+
+        // Make runner fox look in direction of movement
+        setInterval(function() {
+            var angle = Math.atan2(vy, vx);
+            runner.lookAt({ x: -Math.cos(angle), y: -Math.sin(angle) });
+        }, 50);
+
         function updateSize() {
-            var ratio = isMobile() ? 0.75 : 0.4;
-            var w = window.innerWidth * ratio | 0;
-            var h = window.innerHeight * ratio | 0;
+            var w = window.innerWidth * 0.15 | 0;
+            var h = window.innerHeight * 0.15 | 0;
             viewer.container.setAttributeNS(null, "width", w + "px");
             viewer.container.setAttributeNS(null, "height", h + "px");
+            runnerW = window.innerWidth * 0.12;
+            runnerH = window.innerHeight * 0.12;
+            var rw = window.innerWidth * 0.12 | 0;
+            var rh = window.innerHeight * 0.12 | 0;
+            runner.container.setAttributeNS(null, "width", rw + "px");
+            runner.container.setAttributeNS(null, "height", rh + "px");
         }
         window.addEventListener("resize", updateSize);
         window.addEventListener("orientationchange", function() {
