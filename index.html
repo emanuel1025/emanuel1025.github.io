@@ -752,6 +752,8 @@
                 }
             }
 
+            document.getElementById('wolfCola').appendChild(container);
+
             if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
                 if (typeof DeviceOrientationEvent !== "undefined" &&
                     typeof DeviceOrientationEvent.requestPermission === "function") {
@@ -761,7 +763,6 @@
                         "background:rgba(0,0,0,0.3);cursor:pointer;z-index:10;" +
                         "font-family:sans-serif;color:#fff;font-size:16px;border-radius:8px;";
                     overlay.textContent = "Tap to enable motion";
-                    container.style.position = "relative";
                     container.parentNode.style.position = "relative";
                     container.parentNode.appendChild(overlay);
                     overlay.addEventListener("click", function() {
@@ -772,8 +773,6 @@
                     requestGyroscope();
                 }
             }
-
-            document.getElementById('wolfCola').appendChild(container);
             var NUM_VERTS = pointsPicture.points.length;
             var points = new Float32Array(3 * NUM_VERTS);
             var transformed = new Float32Array(3 * NUM_VERTS);
