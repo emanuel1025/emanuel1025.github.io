@@ -288,12 +288,34 @@
 })({
     1: [function(require, module, exports) {
         var createViewer = require("../index");
+        function isMobile() {
+            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                (navigator.maxTouchPoints > 0 && window.innerWidth < 1024);
+        }
+        var sizeRatio = isMobile() ? 0.75 : 0.4;
         var viewer = createViewer({
-            width: .4,
-            height: .4,
+            width: sizeRatio,
+            height: sizeRatio,
             followMouse: true
         });
-        document.getElementById('wolfCola').appendChild(viewer.container)
+        document.getElementById('wolfCola').appendChild(viewer.container);
+
+        window.addEventListener("resize", function() {
+            var ratio = isMobile() ? 0.75 : 0.4;
+            var w = window.innerWidth * ratio | 0;
+            var h = window.innerHeight * ratio | 0;
+            viewer.container.setAttributeNS(null, "width", w + "px");
+            viewer.container.setAttributeNS(null, "height", h + "px");
+        });
+        window.addEventListener("orientationchange", function() {
+            setTimeout(function() {
+                var ratio = isMobile() ? 0.75 : 0.4;
+                var w = window.innerWidth * ratio | 0;
+                var h = window.innerHeight * ratio | 0;
+                viewer.container.setAttributeNS(null, "width", w + "px");
+                viewer.container.setAttributeNS(null, "height", h + "px");
+            }, 150);
+        });
     }, {
         "../index": 3
     }],
@@ -665,6 +687,85 @@
                     mouse.y = 1 - 2 * (ev.clientY - bounds.top) / bounds.height
                 }
             });
+
+            // --- Mobile: Gyroscope + Touch fallback ---
+            var useGyroscope = false;
+            var touchActive = false;
+
+            function handleOrientation(event) {
+                if (!followCursor || !useGyroscope) return;
+                var beta = event.beta;
+                var gamma = event.gamma;
+                if (beta === null || gamma === null) return;
+                mouse.x = -Math.max(-1, Math.min(1, gamma / 45));
+                mouse.y = Math.max(-1, Math.min(1, (90 - beta) / 45));
+            }
+
+            function enableGyroscope() {
+                useGyroscope = true;
+                window.addEventListener("deviceorientation", handleOrientation);
+            }
+
+            function enableTouchFallback() {
+                if (touchActive) return;
+                touchActive = true;
+                function handleTouch(ev) {
+                    if (!followCursor) return;
+                    var touch = ev.touches[0];
+                    var bounds = container.getBoundingClientRect();
+                    mouse.x = 1 - 2 * (touch.clientX - bounds.left) / bounds.width;
+                    mouse.y = 1 - 2 * (touch.clientY - bounds.top) / bounds.height;
+                }
+                container.addEventListener("touchstart", function(ev) { ev.preventDefault(); handleTouch(ev); }, { passive: false });
+                container.addEventListener("touchmove", function(ev) { ev.preventDefault(); handleTouch(ev); }, { passive: false });
+            }
+
+            function requestGyroscope() {
+                if (typeof DeviceOrientationEvent !== "undefined" &&
+                    typeof DeviceOrientationEvent.requestPermission === "function") {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(function(response) {
+                            if (response === "granted") enableGyroscope();
+                            else enableTouchFallback();
+                        })
+                        .catch(function() { enableTouchFallback(); });
+                } else if ("DeviceOrientationEvent" in window) {
+                    var testHandler = function(event) {
+                        window.removeEventListener("deviceorientation", testHandler);
+                        if (event.gamma !== null) enableGyroscope();
+                        else enableTouchFallback();
+                    };
+                    window.addEventListener("deviceorientation", testHandler);
+                    setTimeout(function() {
+                        window.removeEventListener("deviceorientation", testHandler);
+                        if (!useGyroscope) enableTouchFallback();
+                    }, 1000);
+                } else {
+                    enableTouchFallback();
+                }
+            }
+
+            if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+                if (typeof DeviceOrientationEvent !== "undefined" &&
+                    typeof DeviceOrientationEvent.requestPermission === "function") {
+                    var overlay = document.createElement("div");
+                    overlay.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;" +
+                        "display:flex;align-items:center;justify-content:center;" +
+                        "background:rgba(0,0,0,0.3);cursor:pointer;z-index:10;" +
+                        "font-family:sans-serif;color:#fff;font-size:16px;border-radius:8px;";
+                    overlay.textContent = "Tap to enable motion";
+                    container.style.position = "relative";
+                    container.parentNode.style.position = "relative";
+                    container.parentNode.appendChild(overlay);
+                    overlay.addEventListener("click", function() {
+                        overlay.parentNode.removeChild(overlay);
+                        requestGyroscope();
+                    });
+                } else {
+                    requestGyroscope();
+                }
+            }
+
             document.getElementById('wolfCola').appendChild(container);
             var NUM_VERTS = pointsPicture.points.length;
             var points = new Float32Array(3 * NUM_VERTS);
