@@ -235,12 +235,12 @@
 
     <div data-module="home-scroll" class="home-scroll-module" >
 
-        <div data-module="hero" id="home_hero" class="hero-module hero home_hero snap_item animations">
+        <div data-module="hero" id="home_hero" class="hero-module hero home_hero snap_item animations" style="position: relative;">
             <canvas class="hero__canvas" width="774" height="659"></canvas>
             <div class="animate_content on">
                 <div class="hero__wrapper">
                     <div class="hero__text__wrapper">
-                        
+
                     </div>
                 </div>
             </div>
@@ -258,8 +258,8 @@
         </div>
 
     </div>
-    <div style="position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);z-index: 5;pointer-events: none;">
-    	<div id="wolfCola" style="pointer-events: auto;">
+    <div id="foxWrapper">
+    	<div id="wolfCola">
     	</div>
     <script language=javascript>
 		(function e(t, n, r) {
@@ -300,21 +300,27 @@
         });
         document.getElementById('wolfCola').appendChild(viewer.container);
 
-        window.addEventListener("resize", function() {
+        // Move fox into the hero section so it's visible on mobile
+        // (position:fixed breaks with scroll-snap on iOS Safari)
+        var hero = document.getElementById('home_hero');
+        var foxWrapper = document.getElementById('foxWrapper');
+        if (hero && foxWrapper) {
+            hero.style.position = 'relative';
+            hero.style.overflow = 'visible';
+            foxWrapper.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;';
+            hero.appendChild(foxWrapper);
+        }
+
+        function updateSize() {
             var ratio = isMobile() ? 0.75 : 0.4;
             var w = window.innerWidth * ratio | 0;
             var h = window.innerHeight * ratio | 0;
             viewer.container.setAttributeNS(null, "width", w + "px");
             viewer.container.setAttributeNS(null, "height", h + "px");
-        });
+        }
+        window.addEventListener("resize", updateSize);
         window.addEventListener("orientationchange", function() {
-            setTimeout(function() {
-                var ratio = isMobile() ? 0.75 : 0.4;
-                var w = window.innerWidth * ratio | 0;
-                var h = window.innerHeight * ratio | 0;
-                viewer.container.setAttributeNS(null, "width", w + "px");
-                viewer.container.setAttributeNS(null, "height", h + "px");
-            }, 150);
+            setTimeout(updateSize, 150);
         });
     }, {
         "../index": 3
