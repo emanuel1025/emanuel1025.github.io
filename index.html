@@ -294,8 +294,8 @@
         }
         var mobile = isMobile();
 
-        // --- Main fox head: follows cursor/tilt ---
-        var headSize = mobile ? 0.3 : 0.2;
+        // --- Main fox head: big, centered, follows cursor/tilt ---
+        var headSize = mobile ? 0.6 : 0.5;
         var viewer = createViewer({
             width: headSize,
             height: headSize,
@@ -303,146 +303,9 @@
         });
         document.getElementById('wolfCola').appendChild(viewer.container);
 
-        var hero = document.getElementById('home_hero');
-        var foxWrapper = document.getElementById('foxWrapper');
-        if (hero && foxWrapper) {
-            hero.style.position = 'relative';
-            hero.style.overflow = 'visible';
-            hero.style.minHeight = '100vh';
-            foxWrapper.style.cssText = 'position:absolute;top:15%;left:50%;transform:translate(-50%,0);z-index:10;';
-            hero.appendChild(foxWrapper);
-        }
-
-        // --- Walking fox: polished SVG fox on all fours ---
-        var foxW = mobile ? 100 : 160;
-        var foxH = mobile ? 70 : 112;
-        var walkStyle = document.createElement('style');
-        walkStyle.textContent =
-            '@keyframes leg-fl{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}' +
-            '@keyframes leg-fr{0%,100%{transform:rotate(12deg)}50%{transform:rotate(-12deg)}}' +
-            '@keyframes leg-bl{0%,100%{transform:rotate(12deg)}50%{transform:rotate(-12deg)}}' +
-            '@keyframes leg-br{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}' +
-            '@keyframes tail-s{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(15deg)}}' +
-            '@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}';
-        document.head.appendChild(walkStyle);
-
-        var walkFox = document.createElement('div');
-        walkFox.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 140" width="' + foxW + '" height="' + foxH + '" style="overflow:visible">' +
-            '<defs>' +
-            '<linearGradient id="fur1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F6851B"/><stop offset="100%" stop-color="#E4761B"/></linearGradient>' +
-            '<linearGradient id="fur2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F6851B"/><stop offset="100%" stop-color="#D4621B"/></linearGradient>' +
-            '<linearGradient id="belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FBD8A8"/><stop offset="100%" stop-color="#F5C88A"/></linearGradient>' +
-            '</defs>' +
-            '<g style="animation:bob 0.35s ease-in-out infinite">' +
-
-            // Shadow
-            '<ellipse cx="115" cy="132" rx="65" ry="5" fill="rgba(0,0,0,0.12)"/>' +
-
-            // Tail
-            '<g style="transform-origin:45px 58px;animation:tail-s 0.5s ease-in-out infinite">' +
-            '<path d="M45,58 C30,40 12,25 8,18 C5,13 10,16 15,20 C10,12 8,6 14,12 C22,22 38,45 45,55Z" fill="url(#fur2)"/>' +
-            '<path d="M14,12 C10,8 8,6 12,10 C9,7 7,10 10,13" fill="#FFF" opacity="0.8"/></g>' +
-
-            // Far back leg
-            '<g transform="translate(68,82)" style="transform-origin:4px 0px;animation:leg-bl 0.35s ease-in-out infinite">' +
-            '<path d="M0,0 C-1,12 -2,30 0,38 C1,42 7,42 8,38 C9,30 9,12 8,0Z" fill="#B5590F"/>' +
-            '<ellipse cx="4" cy="40" rx="6" ry="3.5" fill="#333"/></g>' +
-
-            // Far front leg
-            '<g transform="translate(148,78)" style="transform-origin:4px 0px;animation:leg-br 0.35s ease-in-out infinite">' +
-            '<path d="M0,0 C-1,14 -2,34 0,42 C1,46 7,46 8,42 C9,34 9,14 8,0Z" fill="#B5590F"/>' +
-            '<ellipse cx="4" cy="44" rx="6" ry="3.5" fill="#333"/></g>' +
-
-            // Body - lower so it overlaps leg tops
-            '<path d="M50,52 C50,38 75,30 110,28 C145,26 175,28 180,45 C185,62 178,82 155,87 C125,93 70,90 55,82 C48,77 48,65 50,52Z" fill="url(#fur1)"/>' +
-
-            // Belly highlight
-            '<path d="M70,78 C90,90 135,90 160,80 C145,88 90,88 75,80Z" fill="url(#belly)" opacity="0.6"/>' +
-            // Chest
-            '<path d="M168,55 C175,60 177,72 170,80 C175,68 173,58 168,55Z" fill="url(#belly)" opacity="0.5"/>' +
-
-            // Near back leg
-            '<g transform="translate(78,82)" style="transform-origin:4px 0px;animation:leg-fl 0.35s ease-in-out infinite">' +
-            '<path d="M0,0 C-1,12 -2,30 0,38 C1,42 7,42 8,38 C9,30 9,12 8,0Z" fill="#D4701B"/>' +
-            '<ellipse cx="4" cy="40" rx="6" ry="3.5" fill="#333"/></g>' +
-
-            // Near front leg
-            '<g transform="translate(155,78)" style="transform-origin:4px 0px;animation:leg-fr 0.35s ease-in-out infinite">' +
-            '<path d="M0,0 C-1,14 -2,34 0,42 C1,46 7,46 8,42 C9,34 9,14 8,0Z" fill="#D4701B"/>' +
-            '<ellipse cx="4" cy="44" rx="6" ry="3.5" fill="#333"/></g>' +
-
-            // Neck
-            '<path d="M170,38 C178,28 188,30 190,40 C192,52 185,58 178,55 C172,52 168,46 170,38Z" fill="url(#fur1)"/>' +
-
-            // Head
-            '<path d="M182,16 C188,8 202,8 212,16 C220,24 220,38 210,42 C200,46 188,42 184,34 C180,26 180,20 182,16Z" fill="url(#fur2)"/>' +
-
-            // Cheek
-            '<path d="M198,36 C205,40 212,36 214,38 C212,42 202,44 198,40Z" fill="#F5C88A"/>' +
-
-            // Snout
-            '<path d="M212,26 C220,26 224,30 222,35 C220,38 214,38 212,34Z" fill="#FBD8A8"/>' +
-
-            // Nose
-            '<ellipse cx="223" cy="30" rx="3.5" ry="2.8" fill="#1A1A1A"/>' +
-            '<ellipse cx="222.5" cy="29.2" rx="1.2" ry="0.8" fill="#444" opacity="0.4"/>' +
-
-            // Mouth
-            '<path d="M220,33 C221,35 223,33" fill="none" stroke="#8B4513" stroke-width="0.7"/>' +
-
-            // Eye
-            '<ellipse cx="202" cy="22" rx="4.5" ry="5" fill="#fff"/>' +
-            '<ellipse cx="203" cy="22.5" rx="3" ry="3.5" fill="#2D1B00"/>' +
-            '<circle cx="204" cy="21" r="1.3" fill="#fff"/>' +
-
-            // Brow
-            '<path d="M198,17 C202,15 206,17" fill="none" stroke="#B5500F" stroke-width="1"/>' +
-
-            // Ears
-            '<path d="M188,14 C186,2 192,0 194,3 C196,6 193,14 190,15" fill="#E4761B"/>' +
-            '<path d="M189,12 C188,5 192,3 193,5 C194,7 192,12 190.5,13" fill="#EDAB76"/>' +
-            '<path d="M198,10 C198,-2 204,-2 206,2 C207,6 203,12 200,12" fill="#E4761B"/>' +
-            '<path d="M199,9 C199,1 203,0 204,3 C205,6 202,10 200.5,10" fill="#EDAB76"/>' +
-
-            // Whiskers
-            '<line x1="222" y1="30" x2="234" y2="27" stroke="#D4A574" stroke-width="0.5" opacity="0.5"/>' +
-            '<line x1="222" y1="32" x2="233" y2="32" stroke="#D4A574" stroke-width="0.5" opacity="0.5"/>' +
-            '<line x1="222" y1="34" x2="232" y2="36" stroke="#D4A574" stroke-width="0.5" opacity="0.5"/>' +
-
-            '</g></svg>';
-
-        var walkContainer = document.createElement('div');
-        walkContainer.style.cssText = 'position:fixed;bottom:' + (mobile ? '8%' : '12%') + ';left:0;z-index:15;pointer-events:none;';
-        walkContainer.appendChild(walkFox);
-        document.body.appendChild(walkContainer);
-
-        // Animate walking across screen
-        var wx = -foxW;
-        var walkSpeed = mobile ? 1.2 : 1.8;
-        var goingRight = true;
-
-        function animateWalk() {
-            if (goingRight) {
-                wx += walkSpeed;
-                if (wx > window.innerWidth + 20) {
-                    goingRight = false;
-                    walkFox.style.transform = 'scaleX(-1)';
-                }
-            } else {
-                wx -= walkSpeed;
-                if (wx < -foxW - 20) {
-                    goingRight = true;
-                    walkFox.style.transform = 'scaleX(1)';
-                }
-            }
-            walkContainer.style.left = wx + 'px';
-            requestAnimationFrame(animateWalk);
-        }
-        animateWalk();
-
         function updateSize() {
             var mob = isMobile();
-            var hs = mob ? 0.3 : 0.2;
+            var hs = mob ? 0.6 : 0.5;
             var w = window.innerWidth * hs | 0;
             var h = window.innerHeight * hs | 0;
             viewer.container.setAttributeNS(null, "width", w + "px");
